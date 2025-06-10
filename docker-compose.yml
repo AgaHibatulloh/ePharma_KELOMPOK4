@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  inventory-db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: inventory_db
+      # Add these timeout and lock settings
+      MYSQL_CMD: --innodb_lock_wait_timeout=50 --max_connections=200
+    volumes:
+      - inventory-db-data:/var/lib/mysql
+    networks:
+      - epharma-network
+
+  order-db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: order_db
+    volumes:
+      - order-db-data:/var/lib/mysql
+    networks:
+      - epharma-network
+
+  inventory-service:
+    build: ./inventory_service
+    depends_on:
+      - inventory-db
+    ports:
+      - "5002:5002"
+    environment:
+      - DB_HOST=inventory-db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=inventory_db
+    volumes:
+      - ./inventory_service:/app
+    networks:
+      - epharma-network
+
+  order-service:
+    build: ./order_service
+    depends_on:
+      - order-db
+      - inventory-service
+    ports:
+      - "5003:5003"
+    environment:
+      - DB_HOST=order-db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=order_db
+    volumes:
+      - ./order_service:/app
+    networks:
+      - epharma-network
+
+  api-gateway:
+    build: ./api_gateway
+    ports:
+      - "5000:5000"
+    depends_on:
+      - inventory-service
+      - order-service
+    volumes:
+      - ./api_gateway:/app
+    networks:
+      - epharma-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: inventory-db
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      UPLOAD_LIMIT: 300M
+      PMA_ABSOLUTE_URI: http://localhost:8081/
+    ports:
+      - "8081:80"
+    networks:
+      - epharma-network
+    depends_on:
+      - inventory-db
+      - order-db
+
+  rating-service:
+    build: ./rating_service
+    ports:
+      - "5005:5000"
+    environment:
+      - DB_HOST=rating-db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=rating_db
+      - GEMINI_API_KEY=AIzaSyDOUCIHbXbVz5j7QT9VNMQiWTYi7YplEa4
+    depends_on:
+      - rating-db
+    volumes:
+      - ./rating_service:/app
+    networks:
+      - epharma-network
+
+  rating-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=rating_db
+    volumes:
+      - rating-db-data:/var/lib/mysql
+    networks:
+      - epharma-network
+
+  health-history-service:
+    build: ./health_history_service
+    ports:
+      - "5006:5006"
+    environment:
+      - DB_HOST=health-history-db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=health_history_db
+    networks:
+      - epharma-network
+    depends_on:
+      - health-history-db
+
+  health-history-db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: health_history_db
+      TZ: Asia/Jakarta
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --init-connect='SET NAMES utf8mb4' --innodb-flush-log-at-trx-commit=0
+    volumes:
+      - health-history-db-data:/var/lib/mysql
+    networks:
+      - epharma-network
+
+networks:
+  epharma-network:
+
+volumes:
+  inventory-db-data:
+  order-db-data:
+  rating-db-data:
+  health-history-db-data:

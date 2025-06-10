@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Konsultasi AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #14b8a6;
+            --background: #f8fafc;
+            --user-bubble: #a5f3fc;
+            --ai-bubble: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .header-icon {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: var(--secondary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.8rem;
+        }
+
+        .chat-container {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: -1rem;
+            margin-left: 0.5rem;
+        }
+
+        .user-msg, .ai-msg {
+            padding: 1.2rem;
+            border-radius: 12px;
+            max-width: 90%;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background-color: var(--user-bubble);
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+
+        .ai-msg {
+            align-self: flex-start;
+            background-color: var(--ai-bubble);
+            border-bottom-left-radius: 4px;
+            border-left: 4px solid var(--primary);
+            margin-right: auto;
+        }
+
+        .msg-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .user-icon, .ai-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 0.75rem;
+            color: white;
+        }
+
+        .user-icon {
+            background-color: var(--primary);
+        }
+
+        .ai-icon {
+            background-color: var(--secondary);
+        }
+
+        .msg-content {
+            white-space: pre-wrap;
+            line-height: 1.65;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 1.2rem;
+            }
+            
+            .chat-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .user-msg, .ai-msg {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Hasil Konsultasi AI</h2>
+            <p>Analisis dan rekomendasi berdasarkan keluhan Anda</p>
+            <div class="header-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-label">Disampaikan pada {{ tanggal }}</div>
+            
+            <div class="user-msg">
+                <div class="msg-header">
+                    <div class="user-icon"><i class="fas fa-user"></i></div>
+                    Anda
+                </div>
+                <div class="msg-content">{{ keluhan }}</div>
+            </div>
+            
+            <div class="ai-msg">
+                <div class="msg-header">
+                    <div class="ai-icon"><i class="fas fa-brain"></i></div>
+                    Konsultan AI
+                </div>
+                <div class="msg-content">{{ hasil }}</div>
+            </div>
+        </div>
+            
+        <div class="footer">
+            <p>© 2025 Sistem Konsultasi AI | Hasil ini dibuat secara otomatis dan bukan pengganti konsultasi dengan profesional</p>
+        </div>
+    </div>
+
+    <script>
+        // Display current date if tanggal variable is empty
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.querySelector('.chat-label');
+            if (content.textContent.includes('{{ tanggal }}')) {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                content.textContent = 'Disampaikan pada ' + now.toLocaleDateString('id-ID', options);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Kesehatan - ePharma</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #14b8a6;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --status-sakit: #ef4444;
+            --status-perawatan: #f59e0b;
+            --status-sehat: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: none;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 1rem 1rem 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .history-list {
+            margin-top: 2rem;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-sakit {
+            background-color: var(--status-sakit);
+        }
+
+        .status-perawatan {
+            background-color: var(--status-perawatan);
+        }
+
+        .status-sehat {
+            background-color: var(--status-sehat);
+        }
+
+        .timestamp {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Riwayat Kesehatan</h2>
+            </div>
+            <div class="card-body">
+                <form id="healthForm" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nama" class="form-label">Nama</label>
+                            <input type="text" class="form-control" id="nama" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" required>
+                                <option value="">Pilih Status</option>
+                                <option value="sakit">Sakit</option>
+                                <option value="perawatan">Perawatan</option>
+                                <option value="sehat">Sehat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Tambah Riwayat
+                    </button>
+                </form>
+
+                <div id="alertContainer"></div>
+
+                <div class="history-list">
+                    <h3 class="mb-4">Daftar Riwayat</h3>
+                    <div id="historyList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk menampilkan alert
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Fungsi untuk memformat tanggal
+        function formatDate(dateString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // Fungsi untuk mendapatkan status badge
+        function getStatusBadge(status) {
+            const statusMap = {
+                'sakit': { class: 'status-sakit', icon: 'fa-heart-crack' },
+                'perawatan': { class: 'status-perawatan', icon: 'fa-hospital' },
+                'sehat': { class: 'status-sehat', icon: 'fa-heart' }
+            };
+            const statusInfo = statusMap[status] || { class: 'status-sakit', icon: 'fa-question' };
+            return `
+                <span class="status-badge ${statusInfo.class}">
+                    <i class="fas ${statusInfo.icon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}
+                </span>
+            `;
+        }
+
+        // Fungsi untuk memuat riwayat
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/health-history');
+                const history = await response.json();
+                const historyList = document.getElementById('historyList');
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                            <p>Belum ada riwayat kesehatan</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                historyList.innerHTML = history.map(item => `
+                    <div class="history-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-1">${item.nama}</h5>
+                            ${getStatusBadge(item.status)}
+                        </div>
+                        <div class="timestamp mt-2">
+                            <i class="far fa-clock me-1"></i>${formatDate(item.created_at)}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showAlert('Gagal memuat riwayat: ' + error.message, 'danger');
+            }
+        }
+
+        // Event listener untuk form submit
+        document.getElementById('healthForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('nama').value;
+            const status = document.getElementById('status').value;
+
+            try {
+                const response = await fetch('/api/health-history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nama, status })
+                });
+
+                if (response.ok) {
+                    showAlert('Riwayat berhasil ditambahkan');
+                    document.getElementById('healthForm').reset();
+                    loadHistory();
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Gagal menambahkan riwayat', 'danger');
+                }
+            } catch (error) {
+                showAlert('Gagal menambahkan riwayat: ' + error.message, 'danger');
+            }
+        });
+
+        // Muat riwayat saat halaman dimuat
+        loadHistory();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

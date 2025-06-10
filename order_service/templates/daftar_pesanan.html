@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pesanan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #14b8a6;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --status-pending: #f59e0b;
+            --status-completed: #10b981;
+            --status-cancelled: #ef4444;
+            --status-processing: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 900px;
+            max-width: 90%;
+            margin: 2rem auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            background: var(--card-bg);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .header-icon {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: var(--secondary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.8rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .orders-container {
+            margin-bottom: 2rem;
+        }
+
+        .order-count {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            background-color: #f8fafc;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .order-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            background-color: var(--primary-light);
+            color: white;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .order-details {
+            flex-grow: 1;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+            color: var(--primary-dark);
+        }
+
+        .order-info {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .order-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            margin-left: auto;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-pending {
+            background-color: var(--status-pending);
+        }
+
+        .status-completed {
+            background-color: var(--status-completed);
+        }
+
+        .status-cancelled {
+            background-color: var(--status-cancelled);
+        }
+
+        .status-processing {
+            background-color: var(--status-processing);
+        }
+
+        .new-order-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 1.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .new-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                margin: 1rem auto;
+            }
+            
+            .content {
+                padding: 1.5rem 1rem;
+            }
+            
+            .order-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-icon {
+                margin-bottom: 0.75rem;
+                margin-right: 0;
+            }
+            
+            .status-badge {
+                margin-left: 0;
+                margin-top: 1rem;
+                align-self: flex-start;
+            }
+            
+            .new-order-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-clipboard-list"></i> Daftar Pesanan</h2>
+            <p>Kelola dan pantau status semua pesanan Anda</p>
+            <div class="header-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="orders-container">
+                <div class="order-count">
+                    <i class="fas fa-boxes-stacked"></i> 
+                    <span>Total Pesanan: {{ pesanan|length }}</span>
+                </div>
+                
+                <ul class="order-list">
+                    {% for p in pesanan %}
+                    <li class="order-item">
+                        {% if p.kategori == "merah" %}
+                            <div class="order-icon" style="background-color: #ef4444;"><i class="fas fa-pills"></i></div>
+                        {% elif p.kategori == "kuning" %}
+                            <div class="order-icon" style="background-color: #f59e0b;"><i class="fas fa-pills"></i></div>
+                        {% elif p.kategori == "hijau" %}
+                            <div class="order-icon" style="background-color: #10b981;"><i class="fas fa-pills"></i></div>
+                        {% else %}
+                            <div class="order-icon"><i class="fas fa-pills"></i></div>
+                        {% endif %}
+                        
+                        <div class="order-details">
+                            <div class="customer-name">{{ p.nama_pemesan }}</div>
+                            <div class="order-info">
+                                ID Obat: {{ p.id_obat }} | Jumlah: {{ p.jumlah }} unit
+                                <span class="order-category">{{ p.kategori|title }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if p.status == "Normal" %}
+                            <div class="status-badge status-completed">
+                                <i class="fas fa-check"></i> {{ p.status }}
+                            </div>
+                        {% elif "Anomali" in p.status %}
+                            <div class="status-badge status-cancelled" title="{{ p.status }}">
+                                <i class="fas fa-exclamation-triangle"></i> Anomali
+                            </div>
+                        {% else %}
+                            <div class="status-badge status-pending">
+                                <i class="fas fa-circle-info"></i> {{ p.status }}
+                            </div>
+                        {% endif %}
+                    </li>
+                    {% else %}
+                    <div class="empty-orders">
+                        <div class="empty-icon">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <h3>Belum Ada Pesanan</h3>
+                        <p>Buat pesanan obat baru untuk mulai menggunakan sistem.</p>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <a href="/pesan" class="new-order-btn">
+                <i class="fas fa-plus"></i> Buat Pesanan Baru
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Sistem Manajemen Pesanan | Diperbarui terakhir: {{ current_time }}</p>
+        </div>
+    </div>
+</body>
+</html>
