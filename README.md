@@ -62,21 +62,15 @@ graph TD
 
 ### Schema Design
 ```graphql
-type Obat {
-  id: Int!
-  nama_obat: String!
-  stok: Int!
-  rating: Float
-  rekomendasi: String
+{
+  obat {
+    id
+    namaObat
+    stok
+    namaKategori
+  }
 }
 
-type Pesanan {
-  id: Int!
-  nama_pemesan: String!
-  jumlah: Int!
-  status: String!
-  obat: Obat!
-}
 
 type HealthHistory {
   id: Int!
